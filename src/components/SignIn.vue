@@ -1,14 +1,14 @@
 <template>
-	<div class="signUp">
+	<div class="signIn">
 		<div class="title">
 			<h2>El mejor lugar para comprar tus cervezas favoritas</h2>
 		</div>
 		<div class="container">
-			<Form @submit="handleRegister" :validation-schema="schema">
+			<Form @submit="handleLogin" :validation-schema="schema">
 				<div class="form-group">
-					<label for="name">Name</label>
-					<Field type="text" name="name" />
-					<ErrorMessage name="name" v-slot="{ message }">
+					<label for="username">Username</label>
+					<Field type="text" name="username" />
+					<ErrorMessage name="username" v-slot="{ message }">
 						<i class="fas fa-exclamation-circle"></i>
 						<p>{{ message }}</p>
 					</ErrorMessage>
@@ -21,23 +21,7 @@
 						<p>{{ message }}</p>
 					</ErrorMessage>
 				</div>
-				<div class="form-group">
-					<label for="username">Username</label>
-					<Field type="text" name="username" />
-					<ErrorMessage name="username" v-slot="{ message }">
-						<i class="fas fa-exclamation-circle"></i>
-						<p>{{ message }}</p>
-					</ErrorMessage>
-				</div>
-				<div class="form-group">
-					<label for="email">Email</label>
-					<Field type="text" name="email" />
-					<ErrorMessage name="email" v-slot="{ message }">
-						<i class="fas fa-exclamation-circle"></i>
-						<p>{{ message }}</p>
-					</ErrorMessage>
-				</div>
-				<button type="submit">Registrarse</button>
+				<button type="submit">Iniciar Sesion</button>
 			</Form>
 		</div>
 	</div>
@@ -46,18 +30,14 @@
 <script>
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
+import gql from "graphql-tag";
 
 export default {
-	name: "SignUp",
+	name: "SignIn",
 	data() {
 		const schema = yup.object().shape({
-			username: yup.string().required("Campo requerido!"),
-			password: yup.string().required("Campo requerido!"),
-			name: yup.string().required("Campo requerido!"),
-			email: yup
-				.string()
-				.email("Ingresa un correo valido!")
-				.required("Campo requerido!")
+			username: yup.string().required("is required!"),
+			password: yup.string().required("is required!")
 		});
 		return {
 			schema
@@ -69,28 +49,58 @@ export default {
 		ErrorMessage
 	},
 	methods: {
-		handleRegister(data) {
+		async handleLogin(data) {
+			console.log(data);
+			await this.$apollo
+				.mutate({
+					mutation: gql`
+						mutation SignIn($userInput: SignIn) {
+							signIn(userInput: $userInput) {
+								refresh
+								access
+							}
+						}
+					`,
+					variables: {
+						userInput: data
+					}
+				})
+				.then(res => {
+					const signInData = {
+						username: data.username,
+						tokenAccess: res.data.signIn.access,
+						tokenRefresh: res.data.signIn.refresh
+					};
+					this.$emit("completedLogin", signInData);
+				})
+				.catch(error => {
+					console.error(error);
+					alert("ERROR 401: Credenciales Incorrectas.");
+				});
 			// axios
-			// 	.post("https://auth-ms-g6.herokuapp.com/user/", data)
-			// 	.then(res => {
-			// 		// console.info(res);
-			// 		this.$router.push("/signIn");
+			// 	.post("https://mision-tic-bank-be.herokuapp.com/login/", this.user, {
+			// 		headers: {}
+			// 	})
+			// 	.then(result => {
+			// 		let dataLogIn = {
+			// 			username: this.user.username,
+			// 			token_access: result.data.access,
+			// 			token_refresh: result.data.refresh
+			// 		};
+
+			// 		this.$emit("completedLogIn", dataLogIn);
 			// 	})
 			// 	.catch(error => {
-			// 		// console.log(error);
-			// 		alert(
-			// 			error.response.data?.username[0] ||
-			// 				error.response.data?.email[0] ||
-			// 				"Fallo en el registro intente de nuevo"
-			// 		);
+			// 		if (error.response.status == "401") alert("ERROR 401: Credenciales Incorrectas.");
 			// 	});
 		}
-	}
+	},
+	emits: ["completedLogin"]
 };
 </script>
 
 <style scoped>
-.signUp {
+.signIn {
 	padding: 70px 60px;
 	height: 100%;
 	width: 100%;

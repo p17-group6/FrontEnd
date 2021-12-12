@@ -1,167 +1,207 @@
 <template>
-  <div id="app" class="app">
-    <div class="img">
-    </div>
-    <div class="header">
-      
-      <img src="./imgs/LaBodegaLogo.svg" class="logo" width="200">
-
-      <nav>
-        <a v-if="is_auth" > Cervezas </a>
-        <a v-if="is_auth" > Pack </a>
-        <a v-if="is_auth" > Nosotros </a>
-        <a v-if="is_auth" v-on:click="LoadContact"> Contacto </a>
-        <button v-if="is_auth" v-on:click="loadSignUp" > SingUp </button>
-        <button v-if="is_auth" v-on:click="loadLogIn" > LogIn </button>
-      </nav>
-    </div>
-
-    <div class="main-component">
-      <router-view
-        v-on:completedLogIn="completedLogIn"
-        v-on:completedSignUp="completedSignUp"
-        v-on:completedAbout="completedContact"
-      >
-      </router-view>
-    </div>
-
-  </div>
+	<div id="app" class="app">
+		<div class="background"></div>
+		<header class="header">
+			<router-link to="/">
+				<img src="./assets/img/bodega-logo-white.svg" class="logo" width="200" />
+			</router-link>
+			<label class="icon" for="menu"><i class="fas fa-bars"></i></label>
+			<input id="menu" name="menu" @change="collapseMenu" class="menu" type="checkbox" />
+			<nav class="nav" ref="nav">
+				<router-link v-if="isAuth" to="/products"> Cervezas </router-link>
+				<!-- <router-link v-if="isAuth"> Pack </router-link>
+				<router-link v-if="isAuth"> Nosotros </router-link> 
+				<router-link v-if="isAuth" to="/contact"> Contacto </router-link> -->
+				<router-link class="link" v-if="isAuth" to="/signIn" @click="logOut">
+					Logout
+				</router-link>
+				<router-link class="link" v-if="!isAuth" to="/signUp">
+					Registrarse
+				</router-link>
+				<router-link class="link" v-if="!isAuth" to="/signIn">
+					Iniciar Sesion
+				</router-link>
+			</nav>
+		</header>
+		<main class="main-component">
+			<router-view @completedLogin="completedLogin"> </router-view>
+		</main>
+	</div>
 </template>
-
-
-
 
 <script>
 export default {
-  name: 'App',
-
-  data: function(){
-      return{
-        is_auth: true
-      }
-  },
-
-  components: {
-  },
-
-  methods:{
-    verifyAuth: function() {
-      if(this.is_auth == false)
-        this.$router.push({name: "logIn"})
-    },
-
-    loadLogIn: function(){
-      this.$router.push({name: "logIn"})
-    },
-
-    loadSignUp: function(){
-      this.$router.push({name: "signUp"})
-    },
-
-    loadContact: function(){
-      this.$router.push({name: "Contact"})
-    },
-
-    completedLogIn: function(data) {},
-
-    completedSignUp: function(data) {},
-    
-    completedContact: function(data) {},
-
-  },
-
-  created: function(){
-    this.verifyAuth()
-  }
-
-}
-
-
+	name: "App",
+	computed: {
+		isAuth: {
+			get() {
+				return this.$route.meta.requiresAuth;
+			},
+			set() {}
+		}
+	},
+	components: {},
+	methods: {
+		collapseMenu(ev) {
+			const items = this.$refs.nav.childNodes;
+			items.forEach(item => {
+				item.addEventListener("click", e => {
+					ev.target.checked = false;
+				});
+			});
+		},
+		logOut() {
+			localStorage.clear();
+			alert("Sesion terminada");
+			this.$router.push("/signIn");
+		},
+		completedLogin(data) {
+			// console.log(data);
+			localStorage.setItem("username", data.username);
+			localStorage.setItem("tokenRefresh", data.tokenRefresh);
+			localStorage.setItem("tokenAccess", data.tokenAccess);
+			alert("Autenticacion exitosa");
+			this.$router.push("/products");
+		}
+	},
+	emits: ["completedLogin"]
+};
 </script>
 
 <style>
-  * {
-    box-sizing: border-box;
-  }
-  body{
-    margin: 0 0 0 0;
-    font-family: 'Montserrat';
-    background: #000;
-  }
+*,
+*::before,
+*::after {
+	margin: 0;
+	padding: 0;
+	box-sizing: inherit;
+}
 
-  .app {
-    display: grid;
-    width: 100%;
-    height: 100vh;
-    grid-template-rows: 20% 80%;
-    grid-template-areas: "header"
-                         "main-component"
-  }
+html {
+	box-sizing: border-box;
+}
 
-  .img {
-    background-image: url("./imgs/BgBeer.jpg");
-    height: 100vh;
-    width: 100%;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    position: absolute;
-    z-index: -1;
+body {
+	font-family: "Montserrat";
+	background: #000;
+}
 
-    filter: blur(5px);
-    -webkit-filter: blur(5px);
-  }
+.app {
+	overflow-x: hidden;
+	width: 100%;
+	height: 100vh;
+}
 
-  .header{
-    margin: 0%;
-    padding: 30px 70px 20px 70px;
-    width: 100vw;
-    color:#E5E7E9  ;
-    position: absolute;
-    z-index: 2;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    grid-area: header;
-  }
+::-moz-selection,
+::selection {
+	background-color: #2837479f;
+}
 
-  .header nav {
-    height: 100%;
-    width: 60%;
+.background {
+	background-image: url("./assets/img/bodega-background.jpg");
+	height: calc(100vh);
+	width: 100%;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	position: absolute;
+	z-index: -1;
+	filter: blur(5px);
+	-webkit-filter: blur(5px);
+}
 
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
+.header {
+	padding: 10px 70px 10px 70px;
+	width: 100vw;
+	color: #e5e7e9;
+	background-color: rgba(0, 0, 0, 0.2);
+	position: sticky;
+	z-index: 2;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+}
 
-    font-size: 20px;
-  }
+.header .nav {
+	display: flex;
+	height: 100%;
+	flex: 0.6;
+	justify-content: space-around;
+	align-items: center;
+}
 
-  .header nav a {
-    color: #fff;
-    padding: 20px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  .header nav button{
-    color: #E5E7E9;
-    background: #000000a1;
-    border: none;
-    padding: 18px 25px;
-    position: relative;
-    bottom: 7px;
-  }
+.header .nav a {
+	color: #fff;
+	padding: 20px;
+	font-weight: bold;
+	cursor: pointer;
+}
+.header .nav .link {
+	color: #e5e7e9;
+	cursor: pointer;
+	text-decoration: none;
+	background: #000000a1;
+	border: none;
+	position: relative;
+	text-align: center;
+}
 
-  .header nav button:hover{
-    color: #ffffff;
-    background: #000000;
-    border: none;
-  }
+.header .nav .link:hover {
+	color: #ffffff;
+	background: #000000;
+	border: none;
+}
 
-  
-  .main-component{
-    height: 75vh;
-    margin: 0%;
-    padding: 0%;
-    grid-area: main-component;
-  }
+.icon,
+.menu {
+	display: none;
+}
+
+form button {
+	width: 100%;
+	margin: 15px 0px;
+	height: 40px;
+	border: none;
+	border-radius: 5px;
+	color: #fff;
+	font-weight: bold;
+	background: #283747;
+}
+
+form button:hover {
+	background: #283747ce;
+}
+
+form button:active {
+	background: #2837479f;
+}
+
+@media only screen and (max-width: 900px) {
+	.header .nav {
+		display: none;
+		flex-direction: column;
+		align-items: center;
+		justify-content: initial;
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		top: 100%;
+		width: 100%;
+	}
+
+	.menu[type="checkbox"]:checked ~ .nav {
+		display: flex;
+	}
+
+	.icon {
+		display: block;
+		cursor: pointer;
+		font-size: 24px;
+	}
+
+	.header .nav .link {
+		width: 100%;
+	}
+}
 </style>
