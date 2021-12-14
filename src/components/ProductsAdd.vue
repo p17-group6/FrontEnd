@@ -258,8 +258,8 @@ export default {
 				) {
 					const submitData = data;
 					submitData.price = parseInt(submitData.price);
-					submitData.ibu_grade = parseFloat(submitData.price);
-					submitData.avg_grade = parseFloat(submitData.price);
+					submitData.ibu_grade = parseFloat(submitData.ibu_grade);
+					submitData.avg_grade = parseFloat(submitData.avg_grade);
 					submitData.image = this.results.secure_url;
 					submitData.username = localStorage.getItem("username");
 					console.log(submitData);
