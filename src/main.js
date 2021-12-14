@@ -26,7 +26,7 @@ import "element-plus/es/components/col/style/css";
 // Config
 
 const httpLink = createHttpLink({
-	uri: "http://localhost:4000/"
+	uri: "https://gateway-ms-g6.herokuapp.com/"
 });
 
 const authLink = setContext((_, { headers }) => {

@@ -96,7 +96,7 @@ const router = createRouter({
 
 const apolloClient = new ApolloClient({
 	link: createHttpLink({
-		uri: "http://localhost:4000/"
+		uri: "https://gateway-ms-g6.herokuapp.com/"
 	}),
 	cache: new InMemoryCache()
 });
