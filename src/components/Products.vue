@@ -1,9 +1,9 @@
 <template>
-	<div class="products">
-		<div class="products__side--1">
+	<div class="container">
+		<div class="add">
 			<ProductsAdd />
 		</div>
-		<div class="products__side--2">
+		<div class="table">
 			<ProductsTable />
 		</div>
 	</div>
@@ -14,11 +14,7 @@ import ProductsTable from "./ProductsTable.vue";
 
 export default {
 	name: "Products",
-	data() {
-		return {
-			refreshTable: ""
-		};
-	},
+	data() {},
 	components: {
 		ProductsAdd,
 		ProductsTable
@@ -26,24 +22,24 @@ export default {
 };
 </script>
 <style scoped>
-.products {
+.container {
 	display: flex;
 	position: absolute;
 	top: 0;
 	z-index: 1000;
 	width: 100%;
 }
-.products__side--1 {
-	flex: 0.4;
+.add {
+	flex: 0.3;
 	min-width: 400px;
 }
 
-.products__side--2 {
-	flex: 0.6;
+.table {
+	flex: 0.7;
 }
 
 @media only screen and (max-width: 900px) {
-	.products {
+	.container {
 		flex-direction: column;
 	}
 }

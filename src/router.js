@@ -6,9 +6,10 @@ import Home from "./components/Home.vue";
 import SignIn from "./components/SignIn.vue";
 import SignUp from "./components/SignUp.vue";
 import Contact from "./components/Contact.vue";
+import About from "./components/About.vue";
 import Products from "./components/Products.vue";
 import Orders from "./components/Orders.vue";
-import Order from "./components/Order.vue";
+import OrderAdd from "./components/OrderAdd.vue";
 import Product from "./components/Product.vue";
 
 const routes = [
@@ -45,6 +46,14 @@ const routes = [
 		}
 	},
 	{
+		path: "/about",
+		name: "about",
+		component: About,
+		meta: {
+			requiresAuth: false
+		}
+	},
+	{
 		path: "/orders",
 		name: "orders",
 		component: Orders,
@@ -55,7 +64,7 @@ const routes = [
 	{
 		path: "/orders/:id",
 		name: "order",
-		component: Order,
+		component: OrderAdd,
 		meta: {
 			requiresAuth: true
 		},

@@ -6,35 +6,41 @@
 		<div class="container">
 			<Form @submit="handleRegister" :validation-schema="schema">
 				<div class="form-group">
-					<label for="name">Name</label>
-					<Field type="text" name="name" />
-					<ErrorMessage name="name" v-slot="{ message }">
-						<i class="fas fa-exclamation-circle"></i>
-						<p>{{ message }}</p>
+					<label for="username">Username</label>
+					<i class="fas fa-user"></i>
+
+					<Field type="text" name="username" />
+					<ErrorMessage name="username" v-slot="{ message }">
+						<span v-if="message" class="error">
+							<el-tooltip :content="message" placement="top">
+								<i class="fas fa-exclamation-circle"></i>
+							</el-tooltip>
+						</span>
 					</ErrorMessage>
 				</div>
 				<div class="form-group">
 					<label for="Password">Password</label>
+					<i class="fas fa-unlock-alt"></i>
 					<Field type="password" name="password" />
 					<ErrorMessage name="password" v-slot="{ message }">
-						<i class="fas fa-exclamation-circle"></i>
-						<p>{{ message }}</p>
-					</ErrorMessage>
-				</div>
-				<div class="form-group">
-					<label for="username">Username</label>
-					<Field type="text" name="username" />
-					<ErrorMessage name="username" v-slot="{ message }">
-						<i class="fas fa-exclamation-circle"></i>
-						<p>{{ message }}</p>
+						<span v-if="message" class="error">
+							<el-tooltip :content="message" placement="top">
+								<i class="fas fa-exclamation-circle"></i>
+							</el-tooltip>
+						</span>
 					</ErrorMessage>
 				</div>
 				<div class="form-group">
 					<label for="email">Email</label>
+					<i class="fas fa-envelope"></i>
+
 					<Field type="text" name="email" />
 					<ErrorMessage name="email" v-slot="{ message }">
-						<i class="fas fa-exclamation-circle"></i>
-						<p>{{ message }}</p>
+						<span v-if="message" class="error">
+							<el-tooltip :content="message" placement="top">
+								<i class="fas fa-exclamation-circle"></i>
+							</el-tooltip>
+						</span>
 					</ErrorMessage>
 				</div>
 				<button type="submit">Registrarse</button>
@@ -44,7 +50,9 @@
 </template>
 
 <script>
+import { ElTooltip } from "element-plus";
 import { Form, Field, ErrorMessage } from "vee-validate";
+import gql from "graphql-tag";
 import * as yup from "yup";
 
 export default {
@@ -53,7 +61,6 @@ export default {
 		const schema = yup.object().shape({
 			username: yup.string().required("Campo requerido!"),
 			password: yup.string().required("Campo requerido!"),
-			name: yup.string().required("Campo requerido!"),
 			email: yup
 				.string()
 				.email("Ingresa un correo valido!")
@@ -66,24 +73,34 @@ export default {
 	components: {
 		Form,
 		Field,
-		ErrorMessage
+		ErrorMessage,
+		ElTooltip
 	},
 	methods: {
-		handleRegister(data) {
-			// axios
-			// 	.post("https://auth-ms-g6.herokuapp.com/user/", data)
-			// 	.then(res => {
-			// 		// console.info(res);
-			// 		this.$router.push("/signIn");
-			// 	})
-			// 	.catch(error => {
-			// 		// console.log(error);
-			// 		alert(
-			// 			error.response.data?.username[0] ||
-			// 				error.response.data?.email[0] ||
-			// 				"Fallo en el registro intente de nuevo"
-			// 		);
-			// 	});
+		async handleRegister(data) {
+			// console.log(data);
+			await this.$apollo
+				.mutate({
+					mutation: gql`
+						mutation SignUp($userInput: SignUp) {
+							signUp(userInput: $userInput) {
+								id
+							}
+						}
+					`,
+					variables: {
+						userInput: data
+					}
+				})
+				.then(res => {
+					let message = `Usuario creado exitosamente, id: ${res.data.signUp.id}`;
+					alert(message);
+					this.$router.push("/signIn");
+				})
+				.catch(error => {
+					console.error(error);
+					alert("ERROR 401: Credenciales Incorrectas.");
+				});
 		}
 	}
 };
@@ -130,25 +147,27 @@ export default {
 
 .form-group input {
 	height: 40px;
-	width: 100%;
+	width: 85%;
 	padding: 5px 10px;
 	border: none;
 	outline: none;
 	border-bottom: 1px solid #a2aecd;
-}
-
-.form-group input:nth-child(2) {
 	margin-bottom: 30px;
 }
 
-i {
-	color: orangered;
-	margin-right: 10px;
+.fa-user,
+.fa-envelope,
+.fa-unlock-alt {
+	color: #3d4d77;
+	margin-left: 10px;
 }
 
-i + p {
-	display: inline-block;
-	text-align: center;
+.fa-exclamation-circle {
+	color: orangered;
+}
+
+.error {
+	display: inline;
 }
 
 .container button {

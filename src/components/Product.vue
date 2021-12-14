@@ -173,7 +173,7 @@ export default {
 					submitData.description = submitData?.description || this.product?.description;
 					submitData.category = submitData?.category || this.product?.category;
 					submitData.style = submitData?.style || this.product?.style;
-					submitData.price = submitData?.price || this.product?.price;
+					submitData.price = parseInt(submitData?.price) || this.product?.price;
 					submitData.ibu_grade = parseFloat(submitData?.ibu_grade) || this.product?.ibu_grade;
 					submitData.avg_grade = parseFloat(submitData?.avg_grade) || this.product?.avg_grade;
 

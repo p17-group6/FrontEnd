@@ -1,34 +1,29 @@
 <template>
-	<div class="products">
-		<h2 clas="products__title">Inventario</h2>
-		<div>
+	<div class="orders">
+		<h2 class="orders__title">Ordenes</h2>
+		<div class="orders__table">
 			<el-table
 				:data="
-					getProductsByUsername.filter(
-						product => !search || product.name.toLowerCase().includes(search.toLowerCase())
+					getOrdersByUsername.filter(
+						order => !search || order.name.toLowerCase().includes(search.toLowerCase())
 					)
 				"
 				style="width: 100%; margin: 0 auto;"
 			>
 				<el-table-column label="Imagen" width="180">
 					<template #default="scope">
-						<img class="products__image" :src="scope.row.image" :alt="scope.row.name" />
+						<img
+							class="orders__image"
+							:src="getProductImage(scope.row.productId)"
+							:alt="scope.row.name"
+						/>
 					</template>
 				</el-table-column>
-				<el-table-column label="Nombre" prop="name" width="120" />
-				<el-table-column label="Precio" prop="price" width="80" />
-				<el-table-column label="F. Creacion" width="150">
-					<template #default="scope">
-						{{ new Date(scope.row.at_created).toLocaleString("es-CO", { timeZone: "UTC" }) }}
-					</template>
-				</el-table-column>
-
-				<el-table-column label="F. Modificacion" width="160">
-					<template #default="scope">
-						{{ new Date(scope.row.at_modified).toLocaleString("es-CO", { timeZone: "UTC" }) }}
-					</template>
-				</el-table-column>
-				<el-table-column align="right" width="100">
+				<el-table-column label="Cliente" prop="username" width="100" />
+				<el-table-column label="Nombre" prop="name" width="140" />
+				<el-table-column label="Cantidad" prop="quantity" width="110" />
+				<el-table-column label="Estado" prop="status" width="120" />
+				<el-table-column align="right" width="140">
 					<template #header>
 						<el-input
 							class="el-input"
@@ -39,15 +34,13 @@
 						/>
 					</template>
 					<template #default="scope">
-						<div class="products__actions">
-							<el-button size="mini" @click="this.$router.push(`/products/${scope.row.id}`)">
-								<i class="fas fa-edit"></i>
-							</el-button>
+						<div class="orders__actions">
+							<el-button size="mini" @click="generateCheckout(scope.row)">Generar Recibo</el-button>
 							<el-button
 								size="mini"
 								:loading="loading"
 								type="danger"
-								@click="handleDelete(scope.row.id)"
+								@click="handleCancelOrder(scope.row.id)"
 								><i class="fas fa-trash"></i
 							></el-button>
 						</div>
@@ -63,15 +56,15 @@ import jwt_decode from "jwt-decode";
 import { eventBus } from "../main";
 
 import { ElTable, ElTableColumn, ElButton, ElInput } from "element-plus";
-
 export default {
-	name: "ProductsTable",
+	name: "Orders",
 	data() {
 		return {
-			loading: false,
 			search: "",
+			loading: false,
 			userId: jwt_decode(localStorage.getItem("tokenRefresh")).user_id,
 			username: localStorage.getItem("username") || "",
+			getOrdersByUsername: [],
 			getProductsByUsername: []
 		};
 	},
@@ -82,19 +75,19 @@ export default {
 		ElInput
 	},
 	methods: {
-		async handleDelete(id) {
+		async handleCancelOrder(id) {
 			this.loading = true;
-			const confirmDelete = confirm("Estas seguro de eliminar el producto?");
-			if (confirmDelete) {
+			const cancelOrder = confirm("Estas seguro de eliminar el producto?");
+			if (cancelOrder) {
 				await this.$apollo
 					.mutate({
 						mutation: gql`
-							mutation DeleteProductById($productId: String!) {
-								deleteProductById(productId: $productId)
+							mutation DeleteOrderById($orderId: String!) {
+								deleteOrderById(orderId: $orderId)
 							}
 						`,
 						variables: {
-							productId: id
+							orderId: id
 						}
 					})
 					.then(result => {
@@ -104,22 +97,45 @@ export default {
 					.catch(error => {
 						console.log(error);
 					});
-				this.$apollo.queries.getProductsByUsername.refetch();
+				this.$apollo.queries.getOrdersByUsername.refetch();
 			}
+		},
+		getProductImage(productId) {
+			const product = this.getProductsByUsername.filter(product => product.id == productId);
+			const item = product[0];
+			if (item) return item.image;
+		},
+		generateCheckout(row) {
+			eventBus.emit("orderData", row);
 		}
 	},
 	apollo: {
+		getOrdersByUsername: {
+			query: gql`
+				query Query($username: String!) {
+					getOrdersByUsername(username: $username) {
+						id
+						name
+						username
+						status
+						productId
+						quantity
+						at_created
+					}
+				}
+			`,
+			variables() {
+				return {
+					username: this.username
+				};
+			}
+		},
 		getProductsByUsername: {
 			query: gql`
 				query Query($username: String!) {
 					getProductsByUsername(username: $username) {
 						id
 						image
-						name
-						price
-						avg_grade
-						at_created
-						at_modified
 					}
 				}
 			`,
@@ -131,47 +147,42 @@ export default {
 		}
 	},
 	created() {
+		this.$apollo.queries.getOrdersByUsername.refetch();
 		this.$apollo.queries.getProductsByUsername.refetch();
-		eventBus.on("saveProduct", message => {
-			console.info(message);
-			if (message) {
-				this.$apollo.queries.getProductsByUsername.refetch();
-			}
-		});
 	}
 };
 </script>
 <style scoped>
-.products {
+.orders {
 	background-color: white;
-	height: 100%;
+	height: 100vh;
 	width: 100%;
-	padding: 20px 20px;
+	padding: 0px 20px;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
 }
 
-.products__image {
+.orders__image {
 	width: 150px;
 	height: 100px;
 	object-fit: cover;
 }
 
-.products__title {
+.orders__title {
 	margin: 50px 20px;
 }
 
-.products__actions {
+.orders__actions {
 	display: flex;
 	flex-direction: column;
 }
 
-.el-button:first-of-type {
+.orders__actions .el-button:first-of-type {
 	margin-bottom: 20px;
 }
 
-.el-button:last-of-type {
+.orders__actions .el-button:last-of-type {
 	margin-left: 0px;
 }
 </style>

@@ -5,7 +5,7 @@
 			<h1>Hoy cervezas importadas con el 20% de descuento</h1>
 		</div>
 		<div class="hero__subtitle">
-			<h3>Hola! {{ userDetailsById.username.toUpperCase() }}</h3>
+			<h3>Hola! {{ title }}</h3>
 		</div>
 	</section>
 	<section class="section">
@@ -22,9 +22,13 @@ export default {
 	name: "Home",
 	data() {
 		return {
-			userId: jwt_decode(localStorage.getItem("tokenRefresh")).user_id,
-			userDetailsById: {}
+			userId: jwt_decode(localStorage.getItem("tokenRefresh")).user_id
 		};
+	},
+	computed: {
+		title() {
+			return this.userDetailsById?.username?.toUpperCase();
+		}
 	},
 	components: { SectionProducts },
 	apollo: {
@@ -88,5 +92,31 @@ export default {
 	font-size: 32px;
 	text-shadow: 1px 1px 2px black;
 	transform: translate(0%, -50%);
+}
+
+@media only screen and (max-width: 900px) {
+	.hero__title {
+		top: 25%;
+		left: 10%;
+		width: 80%;
+		word-break: break-word;
+	}
+
+	.hero__subtitle {
+		left: 40%;
+		top: 70%;
+	}
+}
+
+@media only screen and (max-width: 600px) {
+	.hero__background {
+		clip-path: circle(95% at 49% 0%);
+	}
+	.hero__title {
+		top: 25%;
+		left: 3.5%;
+		width: 100%;
+		word-break: break-word;
+	}
 }
 </style>

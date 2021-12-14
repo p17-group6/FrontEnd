@@ -9,11 +9,11 @@
 			<input id="menu" name="menu" @change="collapseMenu" class="menu" type="checkbox" />
 			<nav class="nav" ref="nav">
 				<router-link v-if="isAuth" to="/products"> Cervezas </router-link>
-				<!-- <router-link v-if="isAuth"> Pack </router-link>
-				<router-link v-if="isAuth"> Nosotros </router-link> 
-				<router-link v-if="isAuth" to="/contact"> Contacto </router-link> -->
+				<router-link v-if="isAuth" to="/orders"> Mis Ordenes </router-link>
+				<router-link to="/about"> Nosotros </router-link>
+				<router-link to="/contact"> Contacto </router-link>
 				<router-link class="link" v-if="isAuth" to="/signIn" @click="logOut">
-					Logout
+					Salir
 				</router-link>
 				<router-link class="link" v-if="!isAuth" to="/signUp">
 					Registrarse
@@ -24,7 +24,7 @@
 			</nav>
 		</header>
 		<main class="main-component">
-			<router-view @completedLogin="completedLogin"> </router-view>
+			<router-view @logOut="logOut" @completedLogin="completedLogin"> </router-view>
 		</main>
 	</div>
 </template>
@@ -126,9 +126,9 @@ body {
 .header .nav {
 	display: flex;
 	height: 100%;
-	flex: 0.6;
 	justify-content: space-around;
 	align-items: center;
+	transition: all 0.2s;
 }
 
 .header .nav a {
@@ -136,21 +136,22 @@ body {
 	padding: 20px;
 	font-weight: bold;
 	cursor: pointer;
+	transition: all 0.1s;
 }
+
 .header .nav .link {
 	color: #e5e7e9;
 	cursor: pointer;
 	text-decoration: none;
-	background: #000000a1;
+	background: rgba(0, 0, 0, 0.8);
 	border: none;
 	position: relative;
 	text-align: center;
+	transition: all 0.1s;
 }
 
 .header .nav .link:hover {
-	color: #ffffff;
 	background: #000000;
-	border: none;
 }
 
 .icon,
@@ -166,6 +167,7 @@ form button {
 	border-radius: 5px;
 	color: #fff;
 	font-weight: bold;
+	cursor: pointer;
 	background: #283747;
 }
 
@@ -188,6 +190,17 @@ form button:active {
 		transform: translateX(-50%);
 		top: 100%;
 		width: 100%;
+	}
+
+	.header .nav a {
+		background-color: rgba(0, 0, 0, 0.8);
+		width: 100%;
+		text-align: center;
+		transition: all 0.1s;
+	}
+
+	.header .nav a:hover {
+		background: #000000;
 	}
 
 	.menu[type="checkbox"]:checked ~ .nav {

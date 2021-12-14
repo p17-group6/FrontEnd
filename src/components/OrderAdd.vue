@@ -5,6 +5,8 @@
 				<img src="../assets/img/bodega-logo-black.svg" class="logo" width="200" />
 			</router-link>
 		</div>
+		<i class="fas fa-shopping-cart order__cart"></i>
+		<i class="fas fa-shopping-cart order__cart"></i>
 		<p v-if="!product">Loading...</p>
 		<div v-else class="order__form">
 			<Form @submit="handleAddOrder" :validation-schema="schema">
@@ -33,7 +35,7 @@
 						</span>
 					</ErrorMessage>
 				</div>
-				<button type="submit">Agregar</button>
+				<button type="submit" :disabled="loading">Agregar</button>
 			</Form>
 		</div>
 	</div>
@@ -47,7 +49,7 @@ import { Field, Form, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
 
 export default {
-	name: "Order",
+	name: "OrderAdd",
 	props: ["id"],
 	data() {
 		const schema = yup.object().shape({
@@ -55,6 +57,7 @@ export default {
 		});
 		return {
 			schema,
+			loading: false,
 			username: localStorage.getItem("username") || "",
 			getProductsByUsername: [],
 			userId: jwt_decode(localStorage.getItem("tokenRefresh")).user_id
@@ -92,6 +95,7 @@ export default {
 	},
 	methods: {
 		async handleAddOrder(data) {
+			this.loading = true;
 			if (data) {
 				if (
 					localStorage.getItem("tokenRefresh") === null ||
@@ -154,8 +158,10 @@ export default {
 							}
 						})
 						.then(res => {
+							this.loading = false;
 							let message = `Order hecha correctamente.\nNúmero Referencia: ${res.data.saveOrder.id}`;
 							alert(message);
+							this.$router.push("/orders");
 						})
 						.catch(error => {
 							console.info(error);
@@ -171,15 +177,35 @@ export default {
 <style scoped>
 .order {
 	background-color: rgb(222, 236, 235);
-	height: 100%;
+	height: 100vh;
 	width: 100%;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	padding: 30px;
+	position: relative;
 }
 
+.order__cart:first-of-type {
+	position: absolute;
+	top: 50px;
+	right: 100px;
+	font-size: 200px;
+	color: rgba(53, 58, 58, 0.4);
+	z-index: 0;
+	transform: rotateZ(45deg);
+}
+
+.order__cart:last-of-type {
+	position: absolute;
+	bottom: 50px;
+	left: 100px;
+	font-size: 200px;
+	color: rgba(53, 58, 58, 0.6);
+	z-index: 0;
+	transform: rotateZ(45deg) rotateY(180deg);
+}
 .order__form {
 	background-color: white;
 	width: 50%;
@@ -187,6 +213,7 @@ export default {
 	padding: 20px;
 	margin-top: 20px;
 	border-radius: 8px;
+	z-index: 3;
 }
 
 .fa-exclamation-circle {

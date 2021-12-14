@@ -101,7 +101,7 @@
 						</span>
 					</ErrorMessage>
 				</div>
-				<button type="submit">Agregar</button>
+				<button type="submit" :disabled="loading">Agregar</button>
 			</Form>
 		</div>
 	</div>
@@ -133,6 +133,7 @@ export default {
 		});
 		return {
 			schema,
+			loading: false,
 			errors: "",
 			userId: jwt_decode(localStorage.getItem("tokenRefresh")).user_id,
 			results: null,
@@ -216,6 +217,7 @@ export default {
 			window.removeEventListener("load", reader);
 		},
 		async handleAddProduct(data) {
+			this.loading = true;
 			if (data) {
 				if (
 					localStorage.getItem("tokenRefresh") === null ||
@@ -285,11 +287,13 @@ export default {
 							}
 						})
 						.then(res => {
+							this.loading = true;
 							let message = `Producto agregado correctamente.\nNúmero Referencia: ${res.data.saveProduct.id}`;
 							alert(message);
 							eventBus.emit("saveProduct", message);
 						})
 						.catch(error => {
+							this.loading = false;
 							console.info(error);
 						});
 				} else {

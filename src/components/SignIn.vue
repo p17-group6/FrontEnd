@@ -7,18 +7,26 @@
 			<Form @submit="handleLogin" :validation-schema="schema">
 				<div class="form-group">
 					<label for="username">Username</label>
-					<Field type="text" name="username" />
+					<i class="fas fa-user"></i>
+					<Field type="text" name="username"> </Field>
 					<ErrorMessage name="username" v-slot="{ message }">
-						<i class="fas fa-exclamation-circle"></i>
-						<p>{{ message }}</p>
+						<span v-if="message" class="error">
+							<el-tooltip :content="message" placement="top">
+								<i class="fas fa-exclamation-circle"></i>
+							</el-tooltip>
+						</span>
 					</ErrorMessage>
 				</div>
 				<div class="form-group">
 					<label for="Password">Password</label>
+					<i class="fas fa-unlock-alt"></i>
 					<Field type="password" name="password" />
 					<ErrorMessage name="password" v-slot="{ message }">
-						<i class="fas fa-exclamation-circle"></i>
-						<p>{{ message }}</p>
+						<span v-if="message" class="error">
+							<el-tooltip :content="message" placement="top">
+								<i class="fas fa-exclamation-circle"></i>
+							</el-tooltip>
+						</span>
 					</ErrorMessage>
 				</div>
 				<button type="submit">Iniciar Sesion</button>
@@ -28,6 +36,7 @@
 </template>
 
 <script>
+import { ElTooltip } from "element-plus";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
 import gql from "graphql-tag";
@@ -36,8 +45,8 @@ export default {
 	name: "SignIn",
 	data() {
 		const schema = yup.object().shape({
-			username: yup.string().required("is required!"),
-			password: yup.string().required("is required!")
+			username: yup.string().required("Campo requerido!"),
+			password: yup.string().required("Campo requerido!")
 		});
 		return {
 			schema
@@ -46,7 +55,8 @@ export default {
 	components: {
 		Form,
 		Field,
-		ErrorMessage
+		ErrorMessage,
+		ElTooltip
 	},
 	methods: {
 		async handleLogin(data) {
@@ -77,22 +87,6 @@ export default {
 					console.error(error);
 					alert("ERROR 401: Credenciales Incorrectas.");
 				});
-			// axios
-			// 	.post("https://mision-tic-bank-be.herokuapp.com/login/", this.user, {
-			// 		headers: {}
-			// 	})
-			// 	.then(result => {
-			// 		let dataLogIn = {
-			// 			username: this.user.username,
-			// 			token_access: result.data.access,
-			// 			token_refresh: result.data.refresh
-			// 		};
-
-			// 		this.$emit("completedLogIn", dataLogIn);
-			// 	})
-			// 	.catch(error => {
-			// 		if (error.response.status == "401") alert("ERROR 401: Credenciales Incorrectas.");
-			// 	});
 		}
 	},
 	emits: ["completedLogin"]
@@ -140,25 +134,22 @@ export default {
 
 .form-group input {
 	height: 40px;
-	width: 100%;
+	width: 80%;
 	padding: 5px 10px;
 	border: none;
 	outline: none;
 	border-bottom: 1px solid #a2aecd;
-}
-
-.form-group input:nth-child(2) {
 	margin-bottom: 30px;
 }
 
-i {
-	color: orangered;
-	margin-right: 10px;
+.fa-user,
+.fa-unlock-alt {
+	color: #3d4d77;
+	margin-left: 10px;
 }
 
-i + p {
-	display: inline-block;
-	text-align: center;
+.fa-exclamation-circle {
+	color: orangered;
 }
 
 .container button {
@@ -177,6 +168,9 @@ i + p {
 .container button:hover {
 	color: #e5e7e9;
 	background: #3d4d77;
+}
+.error {
+	display: inline;
 }
 
 @media only screen and (max-width: 1100px) {
