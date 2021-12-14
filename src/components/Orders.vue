@@ -19,13 +19,15 @@ export default {
 	},
 	components: {
 		OrdersTable,
-		Checkout
-	}
+		Checkout,
+	},
 };
 </script>
 <style scoped>
 .container {
 	display: flex;
+	min-height: 100vh;
+	overflow-y: scroll;
 }
 
 .checkout {

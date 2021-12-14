@@ -17,8 +17,8 @@ export default {
 	data() {},
 	components: {
 		ProductsAdd,
-		ProductsTable
-	}
+		ProductsTable,
+	},
 };
 </script>
 <style scoped>
@@ -28,6 +28,8 @@ export default {
 	top: 0;
 	z-index: 1000;
 	width: 100%;
+	min-height: 100vh;
+	overflow-y: scroll;
 }
 .add {
 	flex: 0.3;

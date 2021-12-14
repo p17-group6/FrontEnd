@@ -46,17 +46,17 @@ export default {
 			username: "---",
 			quantity: "---",
 			status: "---",
-			at_created: "---"
+			at_created: "---",
 		};
 	},
 	components: { Field, Form },
 	methods: {
 		handleCheckout() {
 			this.$refs.stripe.classList.remove("hidden");
-		}
+		},
 	},
 	created() {
-		eventBus.on("orderData", data => {
+		eventBus.on("orderData", (data) => {
 			// console.info(data);
 			if (data) {
 				this.id = data.id;
@@ -67,13 +67,13 @@ export default {
 				this.at_created = data.at_created;
 			}
 		});
-	}
+	},
 };
 </script>
 <style scoped>
 .checkout {
 	background-color: rgb(222, 236, 235);
-	height: 100vh;
+	height: 100%;
 	width: 100%;
 	display: flex;
 	flex-direction: column;

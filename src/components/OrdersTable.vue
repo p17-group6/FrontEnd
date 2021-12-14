@@ -5,10 +5,10 @@
 			<el-table
 				:data="
 					getOrdersByUsername.filter(
-						order => !search || order.name.toLowerCase().includes(search.toLowerCase())
+						(order) => !search || order.name.toLowerCase().includes(search.toLowerCase())
 					)
 				"
-				style="width: 100%; margin: 0 auto;"
+				style="width: 100%; margin: 0 auto"
 			>
 				<el-table-column label="Imagen" width="180">
 					<template #default="scope">
@@ -65,14 +65,14 @@ export default {
 			userId: jwt_decode(localStorage.getItem("tokenRefresh")).user_id,
 			username: localStorage.getItem("username") || "",
 			getOrdersByUsername: [],
-			getProductsByUsername: []
+			getProductsByUsername: [],
 		};
 	},
 	components: {
 		ElTable,
 		ElTableColumn,
 		ElButton,
-		ElInput
+		ElInput,
 	},
 	methods: {
 		async handleCancelOrder(id) {
@@ -87,27 +87,27 @@ export default {
 							}
 						`,
 						variables: {
-							orderId: id
-						}
+							orderId: id,
+						},
 					})
-					.then(result => {
+					.then((result) => {
 						this.loading = false;
 						console.log(result);
 					})
-					.catch(error => {
+					.catch((error) => {
 						console.log(error);
 					});
 				this.$apollo.queries.getOrdersByUsername.refetch();
 			}
 		},
 		getProductImage(productId) {
-			const product = this.getProductsByUsername.filter(product => product.id == productId);
+			const product = this.getProductsByUsername.filter((product) => product.id == productId);
 			const item = product[0];
 			if (item) return item.image;
 		},
 		generateCheckout(row) {
 			eventBus.emit("orderData", row);
-		}
+		},
 	},
 	apollo: {
 		getOrdersByUsername: {
@@ -126,9 +126,9 @@ export default {
 			`,
 			variables() {
 				return {
-					username: this.username
+					username: this.username,
 				};
-			}
+			},
 		},
 		getProductsByUsername: {
 			query: gql`
@@ -141,21 +141,21 @@ export default {
 			`,
 			variables() {
 				return {
-					username: this.username
+					username: this.username,
 				};
-			}
-		}
+			},
+		},
 	},
 	created() {
 		this.$apollo.queries.getOrdersByUsername.refetch();
 		this.$apollo.queries.getProductsByUsername.refetch();
-	}
+	},
 };
 </script>
 <style scoped>
 .orders {
 	background-color: white;
-	height: 100vh;
+	height: 100%;
 	width: 100%;
 	padding: 0px 20px;
 	display: flex;

@@ -129,7 +129,7 @@ export default {
 			style: yup.string().required("El campo estilo es requerido!"),
 			price: yup.mixed().required("El campo precio es requerido!"),
 			ibu_grade: yup.mixed().required("El campo IBU Grade es requerido!"),
-			avg_grade: yup.mixed().required("El campo AVG Grade es requerido!")
+			avg_grade: yup.mixed().required("El campo AVG Grade es requerido!"),
 		});
 		return {
 			schema,
@@ -143,7 +143,7 @@ export default {
 			tags: "beer",
 			filesSelected: null,
 			fileContents: null,
-			formData: null
+			formData: null,
 		};
 	},
 	components: {
@@ -154,7 +154,7 @@ export default {
 		Plus,
 		ElTooltip,
 		ElUpload,
-		ElIcon
+		ElIcon,
 	},
 	methods: {
 		prepareFormData() {
@@ -188,21 +188,21 @@ export default {
 
 			reader.addEventListener(
 				"load",
-				function() {
+				function () {
 					this.fileContents = reader.result;
 					this.prepareFormData();
 					let cloudinaryUploadURL = `https://api.cloudinary.com/v1_1/${this.cloudName}/image/upload`;
 					let requestObj = {
 						url: cloudinaryUploadURL,
 						method: "POST",
-						data: this.formData
+						data: this.formData,
 					};
 					axios(requestObj)
-						.then(res => {
+						.then((res) => {
 							this.results = res.data;
 							// console.log(this.results);
 						})
-						.catch(error => {
+						.catch((error) => {
 							this.errors = "Error cargando la imagen.";
 							console.log(error);
 						});
@@ -216,7 +216,7 @@ export default {
 
 			window.removeEventListener("load", reader);
 		},
-		async handleAddProduct(data) {
+		async handleAddProduct(data, { resetForm }) {
 			this.loading = true;
 			if (data) {
 				if (
@@ -239,14 +239,14 @@ export default {
 						`,
 						variables: {
 							refresh: {
-								refresh: localStorage.getItem("tokenRefresh")
-							}
-						}
+								refresh: localStorage.getItem("tokenRefresh"),
+							},
+						},
 					})
-					.then(result => {
+					.then((result) => {
 						localStorage.setItem("tokenAccess", result.data.refreshToken.access);
 					})
-					.catch(error => {
+					.catch((error) => {
 						console.log(error);
 						this.$emit("logOut");
 						return;
@@ -260,7 +260,7 @@ export default {
 					submitData.price = parseInt(submitData.price);
 					submitData.ibu_grade = parseFloat(submitData.ibu_grade);
 					submitData.avg_grade = parseFloat(submitData.avg_grade);
-					submitData.image = this.results.secure_url;
+					submitData.image = this.results.secure_url || submitData.image;
 					submitData.username = localStorage.getItem("username");
 					console.log(submitData);
 
@@ -283,16 +283,17 @@ export default {
 								}
 							`,
 							variables: {
-								productInput: submitData
-							}
+								productInput: submitData,
+							},
 						})
-						.then(res => {
-							this.loading = true;
+						.then((res) => {
+							this.loading = false;
 							let message = `Producto agregado correctamente.\nNúmero Referencia: ${res.data.saveProduct.id}`;
 							alert(message);
+							resetForm();
 							eventBus.emit("saveProduct", message);
 						})
-						.catch(error => {
+						.catch((error) => {
 							this.loading = false;
 							console.info(error);
 						});
@@ -300,8 +301,8 @@ export default {
 					alert("Hubo un problema con sus credenciales de acceso. Ingrese al sistema de nuevo.");
 				}
 			}
-		}
-	}
+		},
+	},
 };
 </script>
 <style scoped>
